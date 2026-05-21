@@ -48,6 +48,12 @@ export function OnboardingForm() {
     setIsSubmitting(true);
 
     try {
+      console.log("[onboarding-form] Submitting with:", {
+        university: resolvedUniversity,
+        canTeachCount: canTeach.length,
+        wantsToLearnCount: wantsToLearn.length,
+      });
+
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,18 +64,41 @@ export function OnboardingForm() {
         }),
       });
 
+      console.log("[onboarding-form] API response status:", res.status);
+
       const data = await res.json();
+      console.log("[onboarding-form] API response data:", data);
+
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
+        const errorMsg = data.error ?? "Something went wrong. Please try again.";
+        console.error("[onboarding-form] API error:", errorMsg);
+        setError(errorMsg);
         return;
       }
 
+      console.log("[onboarding-form] API success, updating session...");
+      
       // Refresh session so middleware sees onboardingComplete.
       await update();
+      
+      console.log("[onboarding-form] Session updated, redirecting to /browse...");
+      
+      // Small delay to ensure session is truly updated
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
       router.push("/browse");
       router.refresh();
-    } catch {
-      setError("Network error. Please check your connection.");
+      
+      console.log("[onboarding-form] Redirect initiated");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : String(err);
+      console.error("[onboarding-form] Exception caught:", {
+        message: errorMessage,
+        stack: err instanceof Error ? err.stack : undefined,
+        fullError: err,
+      });
+      setError(`Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -191,7 +220,7 @@ export function OnboardingForm() {
       <Button
         type="submit"
         size="lg"
-        disabled={isSubmitting || !resolvedUniversity}
+        disabled={isSubmitting || !resolvedUniversity || canTeach.length === 0 || wantsToLearn.length === 0}
         className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700"
       >
         {isSubmitting ? (
