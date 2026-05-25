@@ -6,7 +6,7 @@
  */
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
-import { getAuthSecret, getAuthUrl, hasGoogleOAuth } from "@/lib/env";
+import { getAuthSecret, hasGoogleOAuth } from "@/lib/env";
 
 const googleProvider = hasGoogleOAuth()
   ? Google({

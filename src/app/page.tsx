@@ -3,7 +3,6 @@
  */
 import Link from "next/link";
 import { Sparkles, ArrowRight, GraduationCap, Handshake } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
 export default function HomePage() {

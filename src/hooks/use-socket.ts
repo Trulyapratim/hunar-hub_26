@@ -42,8 +42,10 @@ export function useSocket({
   const onMessageRef = useRef(onMessage);
   const onConversationUpdatedRef = useRef(onConversationUpdated);
 
-  onMessageRef.current = onMessage;
-  onConversationUpdatedRef.current = onConversationUpdated;
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+    onConversationUpdatedRef.current = onConversationUpdated;
+  });
 
   useEffect(() => {
     if (!userId) return;

@@ -22,19 +22,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      * Persists DB user fields into the JWT so Edge middleware can read them
      * without calling Prisma.
      */
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
 
       const userId = (token.id as string) ?? token.sub;
-      if (userId && (user || trigger === "update")) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { university: true },
-        });
-        token.university = dbUser?.university ?? null;
-        token.onboardingComplete = Boolean(dbUser?.university);
+      if (userId) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { university: true },
+          });
+          token.university = dbUser?.university ?? null;
+          token.onboardingComplete = Boolean(dbUser?.university);
+        } catch (err) {
+          console.error("[auth-jwt-callback] Error fetching user from DB:", err);
+        }
       }
 
       return token;

@@ -20,15 +20,13 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
   const isLoggedIn = Boolean(session?.user);
-  const onboardingComplete = session?.user?.onboardingComplete ?? false;
 
   const isAuthRoute = pathname.startsWith("/sign-in");
-  const isOnboardingRoute = pathname.startsWith("/onboarding");
-  const isApiAuthRoute = pathname.startsWith("/api/auth");
+  const isApiRoute = pathname.startsWith("/api");
   const isPublicHome = pathname === "/";
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
 
-  if (isApiAuthRoute) {
+  if (isApiRoute) {
     return NextResponse.next();
   }
 
@@ -41,22 +39,12 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  if (!onboardingComplete && !isOnboardingRoute) {
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
-  }
-
-  if (onboardingComplete && isOnboardingRoute) {
+  if (isLoggedIn && isAuthRoute) {
     return NextResponse.redirect(new URL("/browse", req.nextUrl.origin));
   }
 
-  if (isLoggedIn && isAuthRoute) {
-    const destination = onboardingComplete ? "/browse" : "/onboarding";
-    return NextResponse.redirect(new URL(destination, req.nextUrl.origin));
-  }
-
   if (isLoggedIn && isPublicHome) {
-    const destination = onboardingComplete ? "/browse" : "/onboarding";
-    return NextResponse.redirect(new URL(destination, req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/browse", req.nextUrl.origin));
   }
 
   return NextResponse.next();

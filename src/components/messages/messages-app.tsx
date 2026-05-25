@@ -65,15 +65,21 @@ export function MessagesApp() {
   }, [activeId, fetchConversations, fetchConversation]);
 
   useEffect(() => {
-    fetchConversations();
+    const timer = setTimeout(() => {
+      fetchConversations();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchConversations]);
 
   useEffect(() => {
-    if (activeId) {
-      fetchConversation(activeId);
-    } else {
-      setActiveConversation(null);
-    }
+    const timer = setTimeout(() => {
+      if (activeId) {
+        fetchConversation(activeId);
+      } else {
+        setActiveConversation(null);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeId, fetchConversation]);
 
   const handleSocketMessage = useCallback(
